@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const Groq = require("groq-sdk");
 
 dotenv.config();
 
@@ -10,26 +11,41 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Root
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY
+});
+
+// Root check
 app.get("/", (req, res) => {
   res.send("Backend running 🚀");
 });
 
-// Chat API
+// ✅ CHAT ONLY (clean)
 app.post("/api/chat", async (req, res) => {
   try {
-    const { message, sessionId } = req.body;
+    const { message } = req.body;
 
-    console.log("Message:", message);
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: "You are a pediatric myopia assistant."
+        },
+        {
+          role: "user",
+          content: message
+        }
+      ],
+      model: "llama3-70b-8192"
+    });
 
-    // Dummy AI response (replace later with Groq)
-    const reply = `You said: ${message}`;
+    const reply = completion.choices[0].message.content;
 
     res.json({ reply });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+    console.error("LLM ERROR:", err);
+    res.status(500).json({ error: "LLM failed" });
   }
 });
 
