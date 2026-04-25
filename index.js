@@ -10,23 +10,19 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// ✅ Root check
+// Root
 app.get("/", (req, res) => {
-  res.send("Backend is running 🚀");
+  res.send("Backend running 🚀");
 });
 
-// ✅ Chat API
+// Chat API
 app.post("/api/chat", async (req, res) => {
   try {
     const { message, sessionId } = req.body;
 
-    console.log("Incoming:", message, sessionId);
+    console.log("Message:", message);
 
-    if (!sessionId) {
-      return res.status(400).json({ error: "sessionId required" });
-    }
-
-    // Simple test response (no Groq yet)
+    // Dummy AI response (replace later with Groq)
     const reply = `You said: ${message}`;
 
     res.json({ reply });
